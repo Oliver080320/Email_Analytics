@@ -1,0 +1,49 @@
+import React,{useState} from 'react';
+import {useDataApp,Section,MetricCard,EvidenceChart,DataComponent,DataTable,Dropdown,Button} from '../../data-app-public.jsx';
+
+import {periodDays,selectRows,countBuckets,hourlyAverage,geoCounts,conversationRows} from './metrics.mjs';
+import './email-dashboard.css';
+import {ContentClassification} from './ContentClassification.jsx';
+import {ConversationReader} from './ConversationReader.jsx';
+const fmt=n=>new Intl.NumberFormat('en',{maximumFractionDigits:2}).format(n);
+const prettyMonth=m=>m==='all'?'All exported months':new Date(m+'-01T12:00:00Z').toLocaleDateString('en',{month:'long',year:'numeric',timeZone:'UTC'});
+function Geo({field,title,rows,value,onSelect,description}){const bars=geoCounts(rows,field),max=Math.max(1,...bars.map(r=>r.conversations));return <DataComponent id={'geo-'+field} title={title} queryId="emails" kind="chart" variant="card" displayRows={bars} sourceRows={rows} description={description}><div data-reviewed-rows><p className="hint">{description}</p><div className="geo-bars">{bars.length?bars.map(r=><button key={r.label} className="geo-bar" aria-label={`${title}: ${r.label}, ${r.conversations} conversations`} aria-pressed={value===r.label} onClick={()=>onSelect(value===r.label?'all':r.label)}><span className="geo-label">{r.label}</span><span className="geo-track"><span style={{width:Math.max(2,100*r.conversations/max)+'%'}}/></span><strong>{r.conversations}</strong></button>):<p className="hint">No conversations match this selection.</p>}</div></div></DataComponent>;}
+export function DashboardContent(){
+ const [view,setView]=useState('analytics'),[readerEmail,setReaderEmail]=useState(null);
+ const openEmail=row=>{setReaderEmail(row);setView('reader');};
+ const {snapshot}=useDataApp();const all=snapshot.queries.emails.rows;const months=[...new Set(all.map(r=>r.month))].sort();
+ const [month,setMonth]=useState(months.at(-1)),[day,setDay]=useState('all'),[country,setCountry]=useState('all'),[region,setRegion]=useState('all'),[city,setCity]=useState('all'),[direction,setDirection]=useState('all'),[auto,setAuto]=useState('all'),[source,setSource]=useState('all'),[status,setStatus]=useState('all'),[stage,setStage]=useState('all');
+ const f={month,day,country,region,city,direction,auto,source,status,stage},rows=selectRows(all,f),days=periodDays(all,month,day),dayOptions=periodDays(all,month),monthRows=selectRows(all,{...f,day:'all'}),contextRows=selectRows(all,{...f,month:'all',day:'all'}),geoBase=selectRows(all,{...f,country:'all',region:'all',city:'all'}),table=conversationRows(rows);
+ const clearGeo=()=>{setCountry('all');setRegion('all');setCity('all');};
+ const metric=(id,title,value,description,data)=> <MetricCard id={id} title={title} value={value} queryId="emails" sourceRows={data} displayRows={[{metric:title,value,description}]} description={description}><span className="hint">{description}</span></MetricCard>;
+ const chart=(id,title,data,raw,description,spec)=> <EvidenceChart id={id} title={title} queryId="emails" rows={data} sourceRows={raw} description={description} variant="card" height={260} spec={{type:'bar',x:'label',y:'emails',startAtZero:true,showLegend:false,valueDecimals:0,...spec}}/>;
+ return <div className="email-page"><div className="email-filters" role="group" aria-label="Dashboard view" style={{marginBottom:24}}><Button aria-pressed={view==='analytics'} onClick={()=>setView('analytics')}>Analytics</Button><Button aria-pressed={view==='reader'} onClick={()=>{setReaderEmail(null);setView('reader');}}>Conversation reader</Button></div><Section id="selection" title="Explore your group sales inbox"><p className="intro">427 emails across 100 exported conversations · 24 Apr–12 Aug 2026. Counts describe this export, not the complete mailbox.</p><div className="email-filters">
+ <Dropdown label="Month" allLabel="All exported months" showLabel choices={['all',...months]} value={month} onChange={v=>{setMonth(v);setDay('all');}} choiceLabels={Object.fromEntries(['all',...months].map(m=>[m,prettyMonth(m)]))}/>
+ <Dropdown label="Day" allLabel="All days" showLabel choices={['all',...dayOptions]} value={day} onChange={setDay} choiceLabels={{all:'All days'}}/>
+ <Dropdown label="Direction" allLabel="Received + sent" showLabel choices={['all','Received','Sent']} value={direction} onChange={setDirection} choiceLabels={{all:'Received + sent'}}/>
+ <Dropdown label="Auto replies" allLabel="Include" showLabel choices={['all','exclude']} value={auto} onChange={setAuto} choiceLabels={{all:'Include',exclude:'Exclude identifiable'}}/>
+ <Dropdown label="Address evidence" allLabel="All sources" showLabel choices={['all','signature']} value={source} onChange={setSource} choiceLabels={{all:'All sources',signature:'Signatures only'}}/>
+ <Dropdown label="Content status" allLabel="All statuses" showLabel choices={['all','Enquiry','Confirmed','Automatic reply','Other','Needs review']} value={status} onChange={setStatus}/>
+ <Dropdown label="Enquiry type" allLabel="All types" showLabel choices={['all','New','Existing','Needs review']} value={stage} onChange={setStage}/>
+ <Button onClick={()=>{setMonth('all');setDay('all');setDirection('all');setAuto('all');setSource('all');setStatus('all');setStage('all');clearGeo();}}>Reset filters</Button></div>
+ <p className="scope" aria-live="polite">{days[0]}{days.length>1?' to '+days.at(-1):''} · {days.length} calendar {days.length===1?'day':'days'} · {[country,region,city].filter(x=>x!=='all').join(' → ')||'All locations'}</p></Section>
+ {view==='reader'?<ConversationReader messages={snapshot.queries.messages?.rows||[]} allRows={all} scopeRows={rows} initialEmail={readerEmail} onBack={()=>setView('analytics')}/>:<>
+ <Section id="kpis" title="Email activity"><div className="email-kpis">
+ {metric('emails-total','Emails in selection',fmt(rows.length),'Individual received and sent messages, subject to filters.',rows)}
+ {metric('emails-month',month==='all'?'Emails across months':'Emails this month',fmt(monthRows.length),'Month total; ignores the day selector.',monthRows)}
+ {metric('emails-day',day==='all'?'Average emails / day':'Emails this day',fmt(rows.length/Math.max(1,days.length)),day==='all'?`Divided by ${days.length} calendar days, including zero-record days.`:'Total for the selected date.',rows)}
+ {metric('emails-hour','Average emails / hour',fmt(rows.length/Math.max(1,days.length*24)),`Total ÷ ${days.length} days ÷ 24 hours.`,rows)}
+ </div><p className="hint">Recorded timestamps; timezone is not provided. Export boundary days may be partial. A zero means no email records in this export.</p></Section>
+ <ContentClassification rows={rows} onOpenEmail={openEmail}/>
+ <Section id="time" title="When emails arrive and leave"><div className="time-grid">
+ {chart('monthly','Monthly email count',countBuckets(contextRows,'month',months),contextRows,'All exported months; location and message filters apply. Month/day selectors do not change this overview.')}
+ {chart('daily','Daily email count',countBuckets(monthRows,'day',dayOptions),monthRows,'Selected month; the day selector does not change this overview.')}
+ </div>{chart('hourly','Average emails by hour of day',hourlyAverage(rows,days.length),rows,`Emails in each clock hour ÷ ${days.length} calendar days. Selecting one day shows that day’s hourly counts.`,{x:'hour',y:'average',valueDecimals:2})}</Section>
+ <Section id="locations" title="Where contacts are based"><p className="intro">Click a country bar to narrow regions and cities. Click a region to narrow cities. These bars count conversations with matching emails, not unique people. Location filters also update the email KPIs.</p><div><Button onClick={clearGeo}>Clear location selection</Button></div><div className="geo-grid">
+ <Geo field="country" title="Country" rows={geoBase} value={country} onSelect={v=>{setCountry(v);setRegion('all');setCity('all');}} description="All countries in the selected dates. Click a bar to filter."/>
+ <Geo field="region" title="Region" rows={selectRows(geoBase,{country})} value={region} onSelect={v=>{setRegion(v);setCity('all');}} description={country==='all'?'Regions across all countries.':`Regions within ${country}.`}/>
+ <Geo field="city" title="City" rows={selectRows(geoBase,{country,region})} value={city} onSelect={setCity} description={`Cities within ${[country,region].filter(x=>x!=='all').join(' / ')||'all locations'}.`}/>
+ </div><p className="hint">Addresses belong to the conversation’s external contact. Missing locations on conversations whose latest sender is internal are labelled ?Turtle Down Under?; this is a sender label, not an address. External unknowns remain ?Unknown?. Office/HQ matches may not identify the sender’s branch; see evidence and review notes below.</p></Section>
+ <Section id="details" title="Conversation and address details"><DataComponent id="addresses" title={`${table.length} matching conversations`} queryId="emails" kind="table" variant="card" displayRows={table} sourceRows={rows}><DataTable rows={table} onRowSelect={openEmail} rowActionLabel={r=>`Read conversation: ${r.subject}`} label="Conversations ? select a row to read the full thread" pageSize={8} rowKey="conversation" columns={[['conversation','Conversation ID'],['timestamp','Latest matching timestamp'],['sender_email','Sender email'],['subject','Subject'],['status','Latest matching status'],['enquiryStage','Enquiry type'],['enquiryCategory','New enquiry category'],['emails','Email count'],['city','City'],['region','Region'],['country','Country'],['address','Full address'],['locationSource','Address evidence'],['inferred','Inferred fields'],['locationNote','Review notes'],['locationDisplayNote','Location label note']].map(([key,label])=>({key,label,renderCell:key==='conversation'?(value)=><span title={value}>{String(value).slice(-14)}</span>:undefined}))}/></DataComponent></Section></>}</div>;
+}
+

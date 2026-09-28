@@ -1,0 +1,11 @@
+export function calendarDays(start,end){const out=[];for(let d=new Date(start+'T00:00:00Z');d<=new Date(end+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1))out.push(d.toISOString().slice(0,10));return out;}
+export function periodDays(rows,month='all',day='all'){
+ if(!rows.length)return[];const dates=rows.map(r=>r.day).sort();let start=dates[0],end=dates.at(-1);
+ if(month!=='all'){const last=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).toISOString().slice(0,10);start=start>month+'-01'?start:month+'-01';end=end<last?end:last;}
+ if(day!=='all')return day>=start&&day<=end?[day]:[];return calendarDays(start,end);
+}
+export function selectRows(rows,{month='all',day='all',country='all',region='all',city='all',direction='all',auto='all',source='all',status='all',stage='all',category='all'}={}){return rows.filter(r=>(month==='all'||r.month===month)&&(day==='all'||r.day===day)&&(country==='all'||r.country===country)&&(region==='all'||r.region===region)&&(city==='all'||r.city===city)&&(direction==='all'||r.direction===direction)&&(auto==='all'||!r.autoReply)&&(source==='all'||['Text signature','Quoted signature','Signature image (visually read)'].includes(r.locationSource))&&(status==='all'||r.status===status)&&(stage==='all'||r.enquiryStage===stage)&&(category==='all'||(r.enquiryStage==='New'&&(category==='blank'?!r.enquiryCategory:r.enquiryCategory===category))));}
+export function countBuckets(rows,field,values){return values.map(label=>({label,emails:rows.filter(r=>r[field]===label).length}));}
+export function hourlyAverage(rows,days){return Array.from({length:24},(_,hour)=>{const emails=rows.filter(r=>r.hour===hour).length;return{hour:String(hour).padStart(2,'0')+':00',emails,average:days?emails/days:0};});}
+export function geoCounts(rows,field){const groups=new Map();for(const r of rows){if(!groups.has(r[field]))groups.set(r[field],new Set());groups.get(r[field]).add(r.conversation);}return [...groups].map(([label,ids])=>({label,conversations:ids.size})).sort((a,b)=>b.conversations-a.conversations||a.label.localeCompare(b.label));}
+export function conversationRows(rows){const out=new Map();for(const r of rows){const p=out.get(r.conversation);out.set(r.conversation,p?{...(r.timestamp>p.timestamp?r:p),emails:p.emails+1}:{...r,emails:1});}return [...out.values()].sort((a,b)=>b.timestamp.localeCompare(a.timestamp));}
