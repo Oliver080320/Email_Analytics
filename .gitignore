@@ -1,4 +1,4 @@
-# Public repository: allow only reviewed application source and documentation.
+# Allow application source, documentation and the requested dashboard dataset.
 /*
 !/.gitignore
 !/README.md
@@ -6,8 +6,7 @@
 !/prepare_email_reader.py
 !/email-dashboard/
 
-# Keep customer data and generated applications on the local machine.
-/email-dashboard/src/data.json
+# Keep additional source files and generated applications local.
 /email-dashboard/dist/
 /email-dashboard/.data-app-offline/
 /email-dashboard/.openai/

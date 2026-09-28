@@ -6,9 +6,9 @@ Features include daily/monthly counts, average hourly activity, linked country/r
 
 ## Data and privacy
 
-This public repository contains application source only. Customer email bodies, contact spreadsheets, the populated `src/data.json`, signature images, and built HTML exports are deliberately excluded. They remain in the original local workspace. A fresh clone does not include a populated dashboard.
+This repository includes the populated `email-dashboard/src/data.json` dataset at the owner's request. It contains 427 email records across 100 conversations, contact locations, reviewed classifications, and structured email content for the conversation reader. This file is sufficient to populate the dashboard; the original JSON export and contact spreadsheets are not required to run it.
 
-Keep private inputs and generated dashboard files out of commits. The offline HTML embeds email content, so treat it as private data too.
+The dataset contains customer email content and contact information and is accessible to anyone with access to this repository. Original input files, signature images and generated HTML exports remain excluded. Image and attachment files absent from the dataset cannot be displayed by the reader.
 
 ## Open the existing local dashboard
 
@@ -30,7 +30,7 @@ These generated files are not included in this repository.
 
 ## Develop or rebuild
 
-1. Restore your private reviewed snapshot to `email-dashboard/src/data.json` from the original workspace. It includes the email annotations and structured reader content.
+1. Clone the repository. The reviewed snapshot is already included at `email-dashboard/src/data.json`, with email annotations and structured reader content.
 2. Follow `email-dashboard/AGENTS.md` for the supported build workflow and editable boundaries. Application-specific React and CSS live in `email-dashboard/src/content/dashboard/`.
 3. Build the app, then serve its `dist` directory as shown above.
 
