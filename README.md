@@ -17,7 +17,16 @@ Raw source files and signature references named in dashboard evidence can be fou
 
 This repository includes the populated `email-dashboard/src/data.json` dataset at the owner's request. It contains 427 email records across 100 conversations, contact locations, reviewed classifications, and structured email content for the conversation reader. This file is sufficient to populate the dashboard; the original JSON export and contact spreadsheets are not required to run it.
 
-The dataset contains customer email content and contact information and is accessible to anyone with access to this repository. Original input files, signature images and generated HTML exports remain excluded. Image and attachment files absent from the dataset cannot be displayed by the reader.
+The dataset contains customer email content and contact information and is accessible to anyone with access to this repository. The original email JSON, reviewed contact CSVs, signature review/candidate JSONs, and available signature images are also included at the owner's request. Generated HTML exports, redundant spreadsheets and historical audit outputs remain excluded. Image and attachment files absent from the dataset cannot be displayed by the reader.
+
+Included source files under `supporting-files/`:
+
+- `groupsales_latest_100_conversations.json`: original 100-conversation email export.
+- `agent_contact_sheet.csv`: extracted contact information and signature evidence.
+- `conversation_contacts_enriched.csv`: reviewed conversation locations and source references.
+- `signature_review_source.json`, `signature_image_candidates.json`, and `signature_images/`: available signature evidence.
+
+The source CSVs preserve their original extraction values. The current corrected, classified and display-ready data remains `email-dashboard/src/data.json`; use it for the latest dashboard annotations. This update does not add emails beyond the existing 24-04-2026 to 12-08-2026 export.
 
 ## Open the existing local dashboard
 

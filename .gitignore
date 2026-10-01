@@ -6,9 +6,16 @@
 /supporting-files/*
 !/supporting-files/prepare_email_dashboard.py
 !/supporting-files/prepare_email_reader.py
+!/supporting-files/groupsales_latest_100_conversations.json
+!/supporting-files/agent_contact_sheet.csv
+!/supporting-files/conversation_contacts_enriched.csv
+!/supporting-files/signature_review_source.json
+!/supporting-files/signature_image_candidates.json
+!/supporting-files/signature_images/
+
 !/email-dashboard/
 
-# Keep additional source files and generated applications local.
+# Keep other supporting files and generated applications local.
 /email-dashboard/dist/
 /email-dashboard/.data-app-offline/
 /email-dashboard/.openai/
