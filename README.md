@@ -2,7 +2,16 @@
 
 Interactive dashboard for group-sales email activity and conversation review.
 
-Features include daily/monthly counts, average hourly activity, linked country/region/city filtering, enquiry classifications with evidence, and a searchable conversation reader with collapsible quoted history. Reset filters clears all date and content selections.
+Features include a combined month and multi-date calendar, daily/monthly counts, average hourly activity, Turtle Down Under reply time, weekday/hour heatmaps, peak periods, linked country/region/city filtering, enquiry classifications, contact addresses/phones/websites, a Strengths & issues review, and a searchable conversation reader with collapsible quoted history. Reset filters clears all date and content selections. Displayed dates use DD-MM-YYYY.
+
+## Folder guide
+
+- **email_dashboard.html**: latest dashboard. Double-click to open in your browser.
+- **email-dashboard/**: application source, embedded dataset and local server build. Keep this folder for future edits.
+- **supporting-files/**: original JSON, reviewed CSVs, spreadsheets, signature images, notebook and preparation scripts. These are not required to open the HTML dashboard. Run the notebook from this folder; its main Excel output still points to the workbook in the parent folder.
+- **agent_contact_sheet.xlsx**: retained in its existing location because Excel has it open. The hidden `~$` file is Excel's temporary lock; Excel removes it when the workbook closes normally.
+
+Raw source files and signature references named in dashboard evidence can be found under `supporting-files/`. Preparation helpers are historical steps, not a complete rebuild of later reviewed annotations.
 
 ## Data and privacy
 
@@ -34,12 +43,15 @@ These generated files are not included in this repository.
 2. Follow `email-dashboard/AGENTS.md` for the supported build workflow and editable boundaries. Application-specific React and CSS live in `email-dashboard/src/content/dashboard/`.
 3. Build the app, then serve its `dist` directory as shown above.
 
-The helper `prepare_email_dashboard.py` creates an initial snapshot from private JSON/CSV inputs; it does not reproduce the later reviewed classifications and display rules. `prepare_email_reader.py` augments an existing snapshot with safely rendered message content. Both require local inputs; the reader helper requires `beautifulsoup4`.
+The helper `supporting-files/prepare_email_dashboard.py` creates an initial snapshot from private JSON/CSV inputs; it does not reproduce the later reviewed classifications and display rules. `supporting-files/prepare_email_reader.py` augments an existing snapshot with safely rendered message content. Both require local inputs; the reader helper requires `beautifulsoup4`.
 
 ## Measurement notes
 
 - Counts refer to individual messages in the supplied export, not complete mailbox history.
-- Hour-of-day averages divide by calendar days in the selected export period.
+- Hour-of-day averages divide by selected calendar days, including days with no matching records.
+- Reply time runs from an external incoming email to the next non-automatic Turtle Down Under reply addressed to that sender in the same thread. It includes nights/weekends and excludes emails without an observed reply.
+- Explicit date selections expand to their Monday-Sunday weeks only in Busy weekdays and hours; other sections retain the exact selected dates. Export boundaries limit week coverage.
+- Assumed contact names and companies are labelled; recognized personal email providers leave assumed companies blank. Physical contact details come from reviewed email/signature evidence and missing fields stay blank.
 - New enquiries are first observed requests; follow-ups are existing enquiries. Classification is evidence-based but includes cases needing review.
-- Location bars count conversations. The Turtle Down Under fallback is a sender label for missing location fields, not a geographic address.
+- Location bars count conversations. The Turtle Down Under fallback is restricted to internal-only threads; external contacts without a known location remain Unknown.
 - Conversation IDs are not necessarily unique bookings; related threads can describe the same booking.

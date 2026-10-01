@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, NavigableString, Comment
 
 ROOT=Path(__file__).resolve().parent
 raw=json.loads((ROOT/'groupsales_latest_100_conversations.json').read_text(encoding='utf-8-sig'))
-path=ROOT/'email-dashboard/src/data.json'
+path=ROOT.parent/'email-dashboard/src/data.json'
 snapshot=json.loads(path.read_text(encoding='utf-8'))
 allowed={'p','div','br','hr','strong','b','em','i','u','s','ul','ol','li','table','thead','tbody','tfoot','tr','th','td','h1','h2','h3','h4','h5','h6','pre','blockquote','a'}
 

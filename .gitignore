@@ -2,8 +2,10 @@
 /*
 !/.gitignore
 !/README.md
-!/prepare_email_dashboard.py
-!/prepare_email_reader.py
+!/supporting-files/
+/supporting-files/*
+!/supporting-files/prepare_email_dashboard.py
+!/supporting-files/prepare_email_reader.py
 !/email-dashboard/
 
 # Keep additional source files and generated applications local.
