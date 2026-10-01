@@ -2,6 +2,7 @@
 /*
 !/.gitignore
 !/README.md
+!/email_dashboard.html
 !/supporting-files/
 /supporting-files/*
 !/supporting-files/prepare_email_dashboard.py

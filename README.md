@@ -17,7 +17,7 @@ Raw source files and signature references named in dashboard evidence can be fou
 
 This repository includes the populated `email-dashboard/src/data.json` dataset at the owner's request. It contains 427 email records across 100 conversations, contact locations, reviewed classifications, and structured email content for the conversation reader. This file is sufficient to populate the dashboard; the original JSON export and contact spreadsheets are not required to run it.
 
-The dataset contains customer email content and contact information and is accessible to anyone with access to this repository. The original email JSON, reviewed contact CSVs, signature review/candidate JSONs, and available signature images are also included at the owner's request. Generated HTML exports, redundant spreadsheets and historical audit outputs remain excluded. Image and attachment files absent from the dataset cannot be displayed by the reader.
+The dataset contains customer email content and contact information and is accessible to anyone with access to this repository. The original email JSON, reviewed contact CSVs, signature review/candidate JSONs, and available signature images are also included at the owner's request. The ready-to-open `email_dashboard.html` is included. Internal build/export copies, redundant spreadsheets and historical audit outputs remain excluded. Image and attachment files absent from the dataset cannot be displayed by the reader.
 
 Included source files under `supporting-files/`:
 
@@ -44,7 +44,7 @@ Alternatively, open the existing local offline export:
 Start-Process ./email_dashboard.html
 ```
 
-These generated files are not included in this repository.
+The ready-to-open `email_dashboard.html` is included in this repository. Download it and open it in a browser; GitHub does not run the dashboard directly on its file-preview page. The `dist` server build remains local.
 
 ## Develop or rebuild
 
